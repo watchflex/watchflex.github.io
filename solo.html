@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WatchFlex - Stream Premium Content</title>
+    <style>
+        :root {
+            --primary-red: #E50914;
+            --dark-bg: #141414;
+            --header-bg: rgba(20, 20, 20, 0.95);
+            --card-bg: #2F2F2F;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Netflix-style Header */
+        .header {
+            padding: 0 3.5rem;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 10%, transparent);
+            transition: background-color 0.3s;
+        }
+
+        .header.scrolled {
+            background-color: var(--header-bg);
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: var(--primary-red);
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(rgba(0,0,0,0.5), var(--dark-bg)),
+                        url('solo.jpeg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            padding: 0 4%;
+            margin-bottom: 4rem;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin-top: 5rem;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.45);
+        }
+
+        .play-button {
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 2.2rem;
+            font-size: 1.4rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .play-button:hover {
+            background-color: #f40612;
+            transform: scale(1.05);
+        }
+
+        /* Video Modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .video-container {
+            position: relative;
+            width: 85%;
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        #mainVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        /* Offers Overlay */
+        .offers-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            padding: 2rem;
+        }
+
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .offer-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .offer-content {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">WATCHFLEX</a>
+        <nav class="nav-items">
+            <a href="#" class="nav-item">Home</a>
+            <a href="#" class="nav-item">TV Shows</a>
+            <a href="#" class="nav-item">Movies</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Solo Leveling Season 2</h1>
+            <button class="play-button" onclick="showVideoPlayer()">▶ Play Episode 12</button>
+        </div>
+    </section>
+
+    <div class="video-modal" id="videoModal">
+        <div class="video-container">
+            <video id="mainVideo" poster="solo.jpeg">
+                <source src="video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <div class="offers-overlay" id="offersOverlay">
+        <div class="offer-grid" id="offerGrid"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('mainVideo');
+        let offerTimeout;
+
+        // Fake video duration (24 minutes)
+        const REAL_DURATION = 60; // 60 seconds
+        const FAKE_DURATION = 1440; // 24 minutes in seconds
+
+        // Override video duration
+        Object.defineProperty(video, 'duration', { get: () => FAKE_DURATION });
+
+        video.ontimeupdate = () => {
+            if(video.currentTime >= REAL_DURATION) {
+                video.pause();
+                showOffers();
+            }
+        };
+
+        function showVideoPlayer() {
+            document.getElementById('videoModal').style.display = 'block';
+            video.currentTime = 0;
+            
+            video.play().catch(error => {
+                video.controls = true;
+            });
+
+            // Schedule offers after 60 seconds
+            offerTimeout = setTimeout(() => {
+                video.pause();
+                showOffers();
+            }, 60000);
+        }
+
+        function showOffers() {
+            document.getElementById('offersOverlay').style.display = 'block';
+            
+            fetch('https://dvwowtnmyluv4.cloudfront.net/public/offers/feed.php?user_id=538458&api_key=16388e91cdf3368db3bfd08d2dfe4ff0&s1=&s2=')
+                .then(response => response.json())
+                .then(offers => {
+                    const html = offers.slice(0, 4).map(offer => `
+                        <div class="offer-card">
+                            <a href="${offer.url}" class="offer-content" target="_blank">
+                                <h3>${offer.anchor}</h3>
+                                <p>${offer.conversion}</p>
+                            </a>
+                        </div>
+                    `).join('');
+                    document.getElementById('offerGrid').innerHTML = html;
+                });
+        }
+
+        // Check offer completion every 15 seconds
+        setInterval(() => {
+            fetch('https://dvwowtnmyluv4.cloudfront.net/public/external/check2.php?testing=0')
+                .then(response => response.json())
+                .then(leads => {
+                    if(leads.length > 0) {
+                        document.getElementById('offersOverlay').style.display = 'none';
+                        video.currentTime = 0;
+                        video.play();
+                        clearTimeout(offerTimeout);
+                        offerTimeout = setTimeout(() => {
+                            video.pause();
+                            showOffers();
+                        }, 60000);
+                    }
+                });
+        }, 15000);
+
+        // Close video on background click
+        document.addEventListener('click', (e) => {
+            if(e.target.classList.contains('video-modal')) {
+                document.getElementById('videoModal').style.display = 'none';
+                video.pause();
+                clearTimeout(offerTimeout);
+            }
+        });
+    </script>
+</body>
+</html>
