@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WatchFlex - Stream Premium Content</title>
+    <title>WatchFlex - Premium Streaming</title>
     <style>
         :root {
             --primary-red: #E50914;
             --dark-bg: #141414;
             --header-bg: rgba(20, 20, 20, 0.95);
             --card-bg: #2F2F2F;
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         * {
@@ -22,72 +23,78 @@
         body {
             background-color: var(--dark-bg);
             color: white;
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
         /* Netflix-style Header */
         .header {
-            padding: 0 3.5rem;
+            padding: 0 4%;
             height: 68px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: fixed;
             width: 100%;
-            z-index: 1000;
             background: linear-gradient(180deg, rgba(0,0,0,0.7) 10%, transparent);
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            z-index: 1000;
         }
 
         .header.scrolled {
-            background-color: var(--header-bg);
+            background: var(--header-bg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.45);
         }
 
         .logo {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             color: var(--primary-red);
+            letter-spacing: 1.5px;
             text-decoration: none;
-            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.45);
         }
 
         /* Hero Section */
         .hero {
             height: 100vh;
-            position: relative;
-            background: linear-gradient(rgba(0,0,0,0.5), var(--dark-bg)),
-                        url('solo.jpeg') center/cover no-repeat;
             display: flex;
             align-items: center;
             padding: 0 4%;
-            margin-bottom: 4rem;
+            background: linear-gradient(77deg, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0) 60%),
+                        url('solo.jpeg') center/cover no-repeat;
         }
 
         .hero-content {
-            max-width: 800px;
-            margin-top: 5rem;
+            max-width: 720px;
+            margin-top: 4rem;
         }
 
         .hero-title {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.45);
+            font-size: 4.5rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.1;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
         }
 
         .play-button {
             background-color: var(--primary-red);
             color: white;
             border: none;
-            padding: 0.8rem 2.2rem;
-            font-size: 1.4rem;
+            padding: 1rem 2.4rem;
+            font-size: 1.6rem;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
 
         .play-button:hover {
             background-color: #f40612;
             transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
         }
 
         /* Video Modal */
@@ -98,22 +105,25 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.96);
             z-index: 2000;
-            animation: fadeIn 0.4s ease;
+            animation: modalFadeIn 0.4s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .video-container {
             position: relative;
-            width: 85%;
-            max-width: 1100px;
+            width: 88%;
+            max-width: 1200px;
             margin: 2rem auto;
-            padding-top: 56.25%; /* 16:9 aspect ratio */
+            padding-top: 56.25%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
         }
 
         #mainVideo {
@@ -122,115 +132,195 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
-            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
         }
 
         /* Offers Overlay */
         .offers-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.95);
+            padding: 3rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
             z-index: 3000;
-            padding: 2rem;
+            animation: modalFadeIn 0.4s ease-out;
+        }
+
+        .offer-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
         .offer-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 2rem auto;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
         }
 
         .offer-card {
             background: var(--card-bg);
             padding: 1.5rem;
             border-radius: 8px;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .offer-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
         }
 
         .offer-content {
             color: white;
             text-decoration: none;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-red);
+            transition: width 0.3s linear;
+        }
+
+        /* Error Handling */
+        .error-message {
+            display: none;
+            color: var(--primary-red);
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4000;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .video-container {
+                width: 95%;
+            }
+            
+            .offers-overlay {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <a href="#" class="logo">WATCHFLEX</a>
-        <nav class="nav-items">
-            <a href="#" class="nav-item">Home</a>
-            <a href="#" class="nav-item">TV Shows</a>
-            <a href="#" class="nav-item">Movies</a>
-        </nav>
     </header>
 
     <section class="hero">
         <div class="hero-content">
-            <h1 class="hero-title">Solo Leveling Season 2</h1>
-            <button class="play-button" onclick="showVideoPlayer()">▶ Play Episode 12</button>
+            <h1 class="hero-title">Solo Leveling<br>Season 2</h1>
+            <button class="play-button" onclick="initVideoPlayback()">
+                <span>▶</span> Play Episode 12
+            </button>
         </div>
     </section>
 
     <div class="video-modal" id="videoModal">
         <div class="video-container">
-            <video id="mainVideo" poster="solo.jpeg">
-                <source src="video.mp4" type="video/mp4">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <video id="mainVideo" poster="solo.jpeg" muted>
+                <source src="solo-leveling-s2-ep12.mp4" type="video/mp4">
+                <source src="solo-leveling-s2-ep12.webm" type="video/webm">
+                Your browser does not support the video tag.
             </video>
         </div>
     </div>
 
     <div class="offers-overlay" id="offersOverlay">
+        <h2 class="offer-title">Continue Watching</h2>
         <div class="offer-grid" id="offerGrid"></div>
     </div>
 
+    <div class="error-message" id="errorMessage"></div>
+
     <script>
         const video = document.getElementById('mainVideo');
-        let offerTimeout;
+        const REAL_DURATION = 60; // 1 minute (60 seconds)
+        const FAKE_DURATION = 1440; // 24 minutes (1440 seconds)
+        let progressInterval;
+        let hasUserInteracted = false;
 
-        // Fake video duration (24 minutes)
-        const REAL_DURATION = 60; // 60 seconds
-        const FAKE_DURATION = 1440; // 24 minutes in seconds
-
-        // Override video duration
-        Object.defineProperty(video, 'duration', { get: () => FAKE_DURATION });
-
-        video.ontimeupdate = () => {
-            if(video.currentTime >= REAL_DURATION) {
-                video.pause();
-                showOffers();
-            }
-        };
-
-        function showVideoPlayer() {
-            document.getElementById('videoModal').style.display = 'block';
+        // Initialize video playback
+        function initVideoPlayback() {
+            hasUserInteracted = true;
+            showVideoModal();
+            
+            video.muted = true;
             video.currentTime = 0;
             
-            video.play().catch(error => {
-                video.controls = true;
-            });
-
-            // Schedule offers after 60 seconds
-            offerTimeout = setTimeout(() => {
-                video.pause();
-                showOffers();
-            }, 60000);
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    video.controls = false;
+                    startProgressTracking();
+                }).catch(handlePlaybackError);
+            }
         }
 
-        function showOffers() {
+        function showVideoModal() {
+            document.getElementById('videoModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function startProgressTracking() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                const progress = (video.currentTime / REAL_DURATION) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+
+                if(video.currentTime >= REAL_DURATION) {
+                    clearInterval(progressInterval);
+                    handleVideoCompletion();
+                }
+            }, 100);
+        }
+
+        function handleVideoCompletion() {
+            video.pause();
+            showOffersOverlay();
+            loadCPAOffers();
+        }
+
+        function showOffersOverlay() {
             document.getElementById('offersOverlay').style.display = 'block';
-            
-            fetch('https://dvwowtnmyluv4.cloudfront.net/public/offers/feed.php?user_id=538458&api_key=16388e91cdf3368db3bfd08d2dfe4ff0&s1=&s2=')
+        }
+
+        function loadCPAOffers() {
+            fetch('https://dvwowtnmyluv4.cloudfront.net/public/offers/feed.php?user_id=538458&api_key=16388e91cdf3368db3bfd08d2dfe4ff0')
                 .then(response => response.json())
                 .then(offers => {
                     const html = offers.slice(0, 4).map(offer => `
@@ -242,35 +332,67 @@
                         </div>
                     `).join('');
                     document.getElementById('offerGrid').innerHTML = html;
-                });
+                })
+                .catch(handleNetworkError);
         }
 
-        // Check offer completion every 15 seconds
+        // Offer completion checker
         setInterval(() => {
             fetch('https://dvwowtnmyluv4.cloudfront.net/public/external/check2.php?testing=0')
                 .then(response => response.json())
                 .then(leads => {
                     if(leads.length > 0) {
                         document.getElementById('offersOverlay').style.display = 'none';
-                        video.currentTime = 0;
-                        video.play();
-                        clearTimeout(offerTimeout);
-                        offerTimeout = setTimeout(() => {
-                            video.pause();
-                            showOffers();
-                        }, 60000);
+                        resetVideoPlayback();
                     }
-                });
+                })
+                .catch(handleNetworkError);
         }, 15000);
 
-        // Close video on background click
+        function resetVideoPlayback() {
+            video.currentTime = 0;
+            video.play().then(() => startProgressTracking());
+        }
+
+        // Error handling
+        function handlePlaybackError(error) {
+            console.error('Playback error:', error);
+            showError('Playback failed. Please click to play.');
+            video.controls = true;
+        }
+
+        function handleNetworkError(error) {
+            console.error('Network error:', error);
+            showError('Connection issue. Please try again.');
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 5000);
+        }
+
+        // Event listeners
+        video.addEventListener('error', () => {
+            handlePlaybackError(video.error);
+        });
+
+        window.addEventListener('scroll', () => {
+            document.querySelector('.header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
         document.addEventListener('click', (e) => {
             if(e.target.classList.contains('video-modal')) {
                 document.getElementById('videoModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
                 video.pause();
-                clearTimeout(offerTimeout);
+                clearInterval(progressInterval);
             }
         });
+
+        // Prevent right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
 </body>
 </html>
